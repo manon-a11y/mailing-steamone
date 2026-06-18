@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SteamOne QA Comparison</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 20px;
+        color: #1c1917;
+        background: #f7f4ef;
+        font-family: Inter, Arial, sans-serif;
+      }
+
+      .comparison {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      figure {
+        margin: 0;
+        padding: 14px;
+        background: #fff;
+        border: 1px solid #ded6cd;
+        border-radius: 8px;
+      }
+
+      figcaption {
+        margin-bottom: 12px;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="comparison">
+      <figure>
+        <figcaption>Source reference</figcaption>
+        <img src="./source-reference.png" alt="Source reference screenshot" />
+      </figure>
+      <figure>
+        <figcaption>Implementation</figcaption>
+        <img src="./implementation-wide.png" alt="Implementation wide desktop screenshot" />
+      </figure>
+    </div>
+  </body>
+</html>
