@@ -104,17 +104,17 @@ const hotelLogos = [
   },
   {
     name: "Four Seasons",
-    src: "/logos/hotels/four-seasons.jpeg",
+    src: "/logos/hotels/four-seasons-transparent.png",
     className: "hotel-logo-four-seasons",
   },
   {
     name: "Hyatt Regency",
-    src: "/logos/hotels/hyatt-regency.jpeg",
+    src: "/logos/hotels/hyatt-regency-transparent.png",
     className: "hotel-logo-hyatt",
   },
   {
     name: "Mandarin Oriental",
-    src: "/logos/hotels/mandarin-oriental.jpeg",
+    src: "/logos/hotels/mandarin-oriental-transparent.png",
     className: "hotel-logo-mandarin",
   },
 ];
@@ -343,6 +343,10 @@ function SampleSelectionModal({ onClose, onSelect }) {
         <p className="modal-description sample-selection-description">
           Select the SteamOne model that best fits your property's garment care needs.
         </p>
+        <p className="sample-selection-note">
+          I may contact you after your request. This allows me to discuss your interest in SteamOne
+          products and see how our solutions could fit your hotel.
+        </p>
 
         <div className="sample-product-grid">
           {sampleProducts.map((product) => (
@@ -431,8 +435,9 @@ export function App() {
           </h1>
           <div className="short-rule" />
           <p className="hero-copy">
-            SteamOne helps hotels deliver impeccable garment care for guests and optimize
-            housekeeping efficiency.
+            SteamOne helps hotels deliver garment care for guests
+            <br />
+            and optimize housekeeping efficiency.
           </p>
           <div className="hero-actions">
             <ActionButton icon={CalendarDays} onClick={openMeetingModal}>
@@ -449,11 +454,11 @@ export function App() {
         <div className="intro-copy">
           <p className="eyebrow">Good day, my name is Manon.</p>
           <div className="short-rule" />
-          <h2 id="intro-title">Just to present myself</h2>
+          <h2 id="intro-title">Just to introduce myself</h2>
           <p>
-            I'm a Junior Business Developer at SteamOne, a family-owned company, French creator of
-            the steamer, specializing in steamers for nearly 15 years. Excellence, innovation, and
-            perseverance are the core values that guide our company.
+            I am a Junior Business Developer at SteamOne, the French creator of garment steamers. As
+            a family-owned company with nearly 15 years of expertise, we design elegant, reliable and
+            easy-to-use solutions guided by excellence, innovation and perseverance.
           </p>
           <p>
             I felt it was important to add this short introduction so you could get to know, even

@@ -633,7 +633,17 @@ img {
 }
 
 .sample-selection-description {
-  margin-bottom: 28px;
+  margin-bottom: 8px;
+}
+
+.sample-selection-note {
+  max-width: 720px;
+  margin: 0 0 28px;
+  padding-left: 12px;
+  color: #756b63;
+  font-size: 13px;
+  line-height: 1.6;
+  border-left: 2px solid rgba(156, 128, 107, 0.38);
 }
 
 .sample-product-grid {
