@@ -1,8 +1,25 @@
-import { Resend } from "resend";
-
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function parseBody(req) {
+export const EMAIL_FIELDS = [
+  ["selectedProduct", "Selected product"],
+  ["firstName", "First name"],
+  ["lastName", "Last name"],
+  ["hotelName", "Hotel name"],
+  ["email", "Email"],
+  ["deliveryCountry", "Delivery country"],
+  ["preferredDateTime", "Preferred date/time"],
+  ["message", "Message"],
+];
+
+export class LeadRequestError extends Error {
+  constructor(message, statusCode = 400) {
+    super(message);
+    this.name = "LeadRequestError";
+    this.statusCode = statusCode;
+  }
+}
+
+export function parseBody(req) {
   if (!req.body) {
     return {};
   }
@@ -10,8 +27,8 @@ function parseBody(req) {
   if (typeof req.body === "string") {
     try {
       return JSON.parse(req.body);
-    } catch {
-      return {};
+    } catch (error) {
+      throw new LeadRequestError(`Invalid JSON request body: ${error.message}`);
     }
   }
 
@@ -40,81 +57,81 @@ function fieldRows(fields, payload) {
     .join("");
 }
 
-function buildEmailHtml({ title, fields, payload }) {
+export function buildEmailHtml({ title, payload }) {
   return `
     <div style="font-family:Inter,Arial,sans-serif;max-width:680px;margin:0 auto;padding:28px;background:#f8f5f0;color:#1f1b18;">
       <h1 style="font-family:Georgia,serif;font-weight:500;margin:0 0 16px;">${escapeHtml(title)}</h1>
       <p style="margin:0 0 24px;color:#5f5750;">A new SteamOne hotel landing page form was submitted.</p>
       <table style="width:100%;border-collapse:collapse;background:#fff;border:1px solid #e5ded6;">
-        ${fieldRows(fields, payload)}
+        ${fieldRows(EMAIL_FIELDS, payload)}
       </table>
     </div>
   `;
 }
 
-export async function handleLeadRequest(req, res, config) {
-  res.setHeader("Content-Type", "application/json");
-
-  if (req.method === "OPTIONS") {
-    res.status(204).end();
-    return;
-  }
-
+export function validateLeadRequest(req, payload, config) {
   if (req.method !== "POST") {
-    res.status(405).json({ error: "Only POST requests are allowed." });
-    return;
+    throw new LeadRequestError("Only POST requests are allowed.", 405);
   }
 
-  const payload = parseBody(req);
   const missingFields = config.requiredFields.filter((field) => !String(payload[field] || "").trim());
 
   if (missingFields.length > 0) {
-    res.status(400).json({ error: "Please complete all required fields." });
-    return;
+    throw new LeadRequestError(
+      `Please complete all required fields. Missing: ${missingFields.join(", ")}.`,
+    );
   }
 
   if (!EMAIL_PATTERN.test(String(payload.email || ""))) {
-    res.status(400).json({ error: "Please enter a valid email address." });
-    return;
+    throw new LeadRequestError("Please enter a valid email address.");
   }
 
   if (config.allowedValues) {
-    const hasInvalidValue = Object.entries(config.allowedValues).some(
+    const invalidField = Object.entries(config.allowedValues).find(
       ([field, allowed]) => !allowed.includes(String(payload[field] || "")),
-    );
+    )?.[0];
 
-    if (hasInvalidValue) {
-      res.status(400).json({ error: "Please select a valid product." });
-      return;
+    if (invalidField) {
+      throw new LeadRequestError(`Please select a valid value for ${invalidField}.`);
     }
   }
+}
 
-  const { NOTIFICATION_EMAIL, FROM_EMAIL, RESEND_API_KEY } = process.env;
+export function getEnvironmentStatus() {
+  return {
+    NOTIFICATION_EMAIL: Boolean(process.env.NOTIFICATION_EMAIL),
+    FROM_EMAIL: Boolean(process.env.FROM_EMAIL),
+    RESEND_API_KEY: Boolean(process.env.RESEND_API_KEY),
+  };
+}
 
-  // TODO: Configure these three environment variables in Vercel before publishing
-  // so form submissions can be delivered through Resend.
-  if (!NOTIFICATION_EMAIL || !FROM_EMAIL || !RESEND_API_KEY) {
-    res.status(500).json({
-      error: "Email is not configured yet. Add NOTIFICATION_EMAIL, FROM_EMAIL, and RESEND_API_KEY.",
-    });
-    return;
+export function validateEmailEnvironment(environmentStatus) {
+  const missingVariables = Object.entries(environmentStatus)
+    .filter(([, exists]) => !exists)
+    .map(([name]) => name);
+
+  if (missingVariables.length > 0) {
+    throw new LeadRequestError(
+      `Email is not configured. Missing environment variables: ${missingVariables.join(", ")}.`,
+      500,
+    );
   }
+}
 
-  const resend = new Resend(RESEND_API_KEY);
+export function serializeResendError(error) {
+  return {
+    name: error?.name || "resend_error",
+    message: error?.message || "Resend could not send the email.",
+    statusCode: Number.isInteger(error?.statusCode) ? error.statusCode : null,
+  };
+}
 
-  try {
-    await resend.emails.send({
-      from: FROM_EMAIL,
-      to: NOTIFICATION_EMAIL,
-      replyTo: payload.email,
-      subject: config.subject(payload),
-      html: buildEmailHtml({ title: config.title, fields: config.fields, payload }),
-    });
+export function getErrorStatus(error, fallback = 500) {
+  const statusCode = Number(error?.statusCode);
 
-    // Analytics hook: add server-side form conversion tracking here if needed.
-    res.status(200).json({ ok: true });
-  } catch (error) {
-    console.error(config.logLabel, error);
-    res.status(500).json({ error: "The request could not be sent. Please try again." });
-  }
+  return statusCode >= 400 && statusCode <= 599 ? statusCode : fallback;
+}
+
+export function getErrorMessage(error) {
+  return error instanceof Error ? error.message : String(error || "Unknown error");
 }

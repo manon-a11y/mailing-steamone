@@ -233,7 +233,7 @@ function FormModal({ type, onClose, initialValues = {}, onBack }) {
 
       const body = await response.json().catch(() => ({}));
 
-      if (!response.ok || body.ok !== true) {
+      if (!response.ok || body.success !== true) {
         throw new Error(body.error || "The request could not be sent.");
       }
 
@@ -447,13 +447,13 @@ export function App() {
 
       <section className="intro-grid" aria-labelledby="intro-title">
         <div className="intro-copy">
-          <p className="eyebrow">Hi, I'm Manon</p>
+          <p className="eyebrow">Good day, my name is Manon.</p>
           <div className="short-rule" />
           <h2 id="intro-title">Just to present myself</h2>
           <p>
-            I'm a Junior Business Developer at SteamOne, a family-owned company that has been
-            specializing in steamers for nearly 15 years. Excellence, innovation, and perseverance
-            are the core values that guide our company.
+            I'm a Junior Business Developer at SteamOne, a family-owned company, French creator of
+            the steamer, specializing in steamers for nearly 15 years. Excellence, innovation, and
+            perseverance are the core values that guide our company.
           </p>
           <p>
             I felt it was important to add this short introduction so you could get to know, even

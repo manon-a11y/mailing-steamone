@@ -13,3 +13,6 @@ When implementing from a selected generated mock, treat that image as the source
 - Use "Hotel garment steamers" as the hero eyebrow wording.
 - Display the Hyatt Regency logo without a visible white or checkerboard rectangle behind it.
 - Display the Four Seasons logo without a visible white rectangle behind it.
+- Introduce Manon with “Good day, my name is Manon.”
+- Describe SteamOne as a family-owned company and the French creator of the steamer, specializing
+  in steamers for nearly 15 years.
