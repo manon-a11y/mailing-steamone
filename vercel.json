@@ -3,6 +3,10 @@
     {
       "source": "/hotels-steamone",
       "destination": "/"
+    },
+    {
+      "source": "/marine",
+      "destination": "/"
     }
   ]
 }

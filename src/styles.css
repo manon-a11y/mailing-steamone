@@ -89,6 +89,10 @@ img {
   gap: 16px;
 }
 
+.nav-actions-single {
+  justify-content: flex-end;
+}
+
 .action-button {
   display: inline-flex;
   align-items: center;
@@ -291,6 +295,18 @@ img {
   object-position: center 40%;
 }
 
+.marine-portrait-card {
+  align-self: center;
+  justify-self: center;
+  width: min(78%, 360px);
+  height: 430px;
+  min-height: unset;
+}
+
+.video-card img.marine-portrait-image {
+  object-position: center 35%;
+}
+
 .solution-cards {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -358,6 +374,18 @@ img {
   object-position: center 52%;
 }
 
+.solution-card .solution-image-marine-room {
+  object-position: center 54%;
+}
+
+.solution-card .solution-image-marine-steamone {
+  object-position: center 52%;
+}
+
+.solution-card-text {
+  background: rgba(255, 255, 255, 0.72);
+}
+
 .solution-body {
   display: grid;
   min-height: 210px;
@@ -385,6 +413,56 @@ img {
   font-size: 15px;
   font-weight: 520;
   line-height: 1.72;
+}
+
+.solution-card-text .solution-body {
+  min-height: 300px;
+  align-content: start;
+  justify-items: start;
+  padding: 30px 34px 34px;
+  text-align: left;
+}
+
+.solution-card-text .solution-body h3 {
+  margin: 0 0 18px;
+  color: #9c806b;
+}
+
+.solution-card-text .solution-body p {
+  color: #3f3934;
+  font-size: 16px;
+  line-height: 1.72;
+  text-align: justify;
+  text-align-last: left;
+}
+
+.why-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  width: min(1840px, calc(100% - 112px));
+  margin: 36px auto 0;
+}
+
+.why-block {
+  min-width: 0;
+  padding: 34px 36px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(42, 36, 31, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 18px 44px rgba(38, 30, 25, 0.06);
+}
+
+.why-block .eyebrow {
+  margin-bottom: 15px;
+}
+
+.why-block p:not(.eyebrow) {
+  margin: 0;
+  color: #3f3934;
+  font-size: 16px;
+  font-weight: 520;
+  line-height: 1.74;
 }
 
 .trust-card {
@@ -627,9 +705,9 @@ img {
 }
 
 .sample-selection-modal {
-  width: min(1120px, 100%);
-  max-height: calc(100vh - 32px);
-  padding: 34px;
+  width: min(1320px, calc(100% - 24px));
+  max-height: calc(100vh - 24px);
+  padding: 58px 28px 28px;
 }
 
 .sample-selection-description {
@@ -649,18 +727,41 @@ img {
 .sample-product-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
+  gap: 28px;
 }
 
 .sample-product-card {
   display: flex;
   min-width: 0;
   flex-direction: column;
+  padding: 0;
   overflow: hidden;
+  color: inherit;
+  font: inherit;
   background: #fff;
   border: 1px solid rgba(55, 44, 36, 0.13);
   border-radius: 8px;
   box-shadow: 0 16px 42px rgba(37, 29, 24, 0.07);
+}
+
+.sample-product-display-card {
+  cursor: default;
+}
+
+.sample-product-photo-card {
+  cursor: pointer;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.sample-product-photo-card:hover,
+.sample-product-photo-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(156, 128, 107, 0.42);
+  box-shadow: 0 22px 54px rgba(37, 29, 24, 0.12);
+  outline: none;
 }
 
 .sample-product-image {
@@ -668,14 +769,13 @@ img {
   aspect-ratio: 1.52;
   place-items: center;
   overflow: hidden;
-  background: #f7f5f2;
-  border-bottom: 1px solid rgba(55, 44, 36, 0.1);
+  background: #fff;
 }
 
 .sample-product-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .sample-product-content {
@@ -824,6 +924,7 @@ img {
   }
 
   .intro-grid,
+  .why-grid,
   .trust-card {
     width: min(1120px, calc(100% - 48px));
   }
@@ -845,6 +946,12 @@ img {
   }
 }
 
+@media (max-width: 1100px) {
+  .sample-product-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 860px) {
   .topbar {
     position: relative;
@@ -857,6 +964,10 @@ img {
     display: grid;
     grid-template-columns: 1fr 1fr;
     width: 100%;
+  }
+
+  .nav-actions-single {
+    grid-template-columns: 1fr;
   }
 
   .action-button {
@@ -901,6 +1012,7 @@ img {
   }
 
   .intro-grid,
+  .why-grid,
   .trust-card {
     width: min(100% - 32px, 680px);
   }
@@ -923,6 +1035,12 @@ img {
     min-height: 280px;
   }
 
+  .marine-portrait-card {
+    width: min(78vw, 320px);
+    height: 380px;
+    min-height: unset;
+  }
+
   .solution-cards {
     grid-template-columns: 1fr;
   }
@@ -932,8 +1050,17 @@ img {
     padding: 24px;
   }
 
+  .why-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .why-block {
+    padding: 28px 22px;
+  }
+
   .sample-selection-modal {
-    padding: 30px 22px;
+    padding: 58px 22px 22px;
   }
 
   .sample-product-grid {
@@ -1006,7 +1133,12 @@ img {
   }
 
   .sample-selection-modal {
-    padding: 28px 16px 18px;
+    padding: 56px 16px 18px;
+  }
+
+  .marine-portrait-card {
+    width: min(76vw, 290px);
+    height: 345px;
   }
 
   .sample-selection-modal h2 {

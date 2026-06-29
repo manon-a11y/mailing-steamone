@@ -1,6 +1,7 @@
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const EMAIL_FIELDS = [
+  ["commercialOwner", "commercialOwner", { optional: true }],
   ["selectedProduct", "Selected product"],
   ["firstName", "First name"],
   ["lastName", "Last name"],
@@ -46,6 +47,7 @@ function escapeHtml(value) {
 
 function fieldRows(fields, payload) {
   return fields
+    .filter(([name, , options]) => !options?.optional || String(payload[name] || "").trim())
     .map(
       ([name, label]) => `
         <tr>

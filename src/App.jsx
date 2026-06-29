@@ -3,7 +3,6 @@ import {
   ArrowLeft,
   BedDouble,
   CalendarDays,
-  Check,
   CheckCircle2,
   Gift,
   Globe2,
@@ -16,9 +15,13 @@ import {
 const ASSETS = {
   hero: "/assets/steamone-hotel-hero-products.png",
   intro: "/assets/manon-intro-photo.png",
+  // Place Marine's portrait at /public/team/marine.jpg for the /marine page.
+  marineIntro: "/team/marine.jpg",
   guestRooms: "/products/guest-room-steamers.jpg",
   housekeeping: "/products/housekeeping-steamers.png",
   sampleTesting: "/products/sample-testing-steamers.jpg",
+  marineRoomSteamers: "/products/marine-room-steamers.png",
+  marineSteamOneProducts: "/products/marine-steamone-products.png",
   map: "/assets/global-hotel-map.png",
 };
 
@@ -48,6 +51,23 @@ const productCards = [
     imageClassName: "solution-image-sample-testing",
     Icon: Gift,
     action: "sample",
+  },
+];
+
+const marineWhySections = [
+  {
+    title: "Why a steamer in the room?",
+    text: "A garment steamer offers guests a fast, intuitive and convenient way to refresh their clothes directly in the room. Compact and ready to use, it requires no ironing board and brings a modern, premium touch to the in-room experience, meeting today’s guest expectations for comfort, autonomy and efficiency.",
+    image: ASSETS.marineRoomSteamers,
+    imageAlt: "SteamOne garment steamers for hotel room use",
+    imageClassName: "solution-image-marine-room",
+  },
+  {
+    title: "Why SteamOne?",
+    text: "SteamOne helps hotels enhance the in-room guest experience with premium, easy-to-use garment steamers designed for hospitality needs. Already trusted by many 4- and 5-star hotels, our products offer guests a fast, elegant and modern garment care solution, while helping properties gradually replace traditional irons.",
+    image: ASSETS.marineSteamOneProducts,
+    imageAlt: "SteamOne handheld steamer and black steamer base",
+    imageClassName: "solution-image-marine-steamone",
   },
 ];
 
@@ -118,6 +138,70 @@ const hotelLogos = [
     className: "hotel-logo-mandarin",
   },
 ];
+
+const INTRO_COMPANY_DESCRIPTION =
+  "the French creator of garment steamers. As a family-owned company with nearly 15 years of expertise, we design elegant, reliable and easy-to-use solutions guided by excellence, innovation and perseverance.";
+
+const INTRO_PERSONAL_NOTE =
+  "I felt it was important to add this short introduction so you could get to know, even briefly, the person behind the message.";
+
+const defaultPageConfig = {
+  commercialOwner: "",
+  showHeaderSampleAction: true,
+  showHeroSampleAction: true,
+  allowSampleRequest: true,
+  intro: {
+    eyebrow: "Good day, my name is Manon.",
+    title: "Just to introduce myself",
+    opening: "I am a Junior Business Developer at SteamOne",
+    image: ASSETS.intro,
+    imageAlt: "Portrait of Manon",
+    imageClassName: "",
+    cardClassName: "",
+  },
+  solutionCards: productCards,
+  whySections: [],
+};
+
+const pageConfigs = {
+  "/marine": {
+    commercialOwner: "Marine",
+    showHeaderSampleAction: false,
+    showHeroSampleAction: false,
+    allowSampleRequest: false,
+    intro: {
+      eyebrow: "Good day, my name is Marine.",
+      title: "Just to introduce myself",
+      opening: "I’m responsible for the Hospitality Business Unit in Europe at SteamOne",
+      image: ASSETS.marineIntro,
+      imageAlt: "Portrait of Marine",
+      imageClassName: "marine-portrait-image",
+      cardClassName: "marine-portrait-card",
+    },
+    solutionCards: [
+      {
+        ...marineWhySections[0],
+        cardClassName: "solution-card-text",
+      },
+      {
+        ...marineWhySections[1],
+        cardClassName: "solution-card-text",
+      },
+      productCards[2],
+    ],
+    whySections: [],
+  },
+};
+
+function getPageConfig() {
+  if (typeof window === "undefined") {
+    return defaultPageConfig;
+  }
+
+  const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
+
+  return pageConfigs[pathname] || defaultPageConfig;
+}
 
 const formConfigs = {
   meeting: {
@@ -202,11 +286,12 @@ function HotelLogo({ name, src, className }) {
   );
 }
 
-function FormModal({ type, onClose, initialValues = {}, onBack }) {
+function FormModal({ type, onClose, initialValues = {}, onBack, commercialOwner = "" }) {
   const config = formConfigs[type];
   const [values, setValues] = useState(() => ({
     ...getInitialForm(config.fields),
     ...initialValues,
+    ...(commercialOwner ? { commercialOwner } : {}),
   }));
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState("");
@@ -228,7 +313,10 @@ function FormModal({ type, onClose, initialValues = {}, onBack }) {
       const response = await fetch(config.endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          ...values,
+          ...(commercialOwner ? { commercialOwner } : {}),
+        }),
       });
 
       const body = await response.json().catch(() => ({}));
@@ -281,6 +369,9 @@ function FormModal({ type, onClose, initialValues = {}, onBack }) {
             {config.note ? <p className="modal-note">{config.note}</p> : null}
 
             <form className="lead-form" onSubmit={handleSubmit}>
+              {commercialOwner ? (
+                <input type="hidden" name="commercialOwner" value={commercialOwner} readOnly />
+              ) : null}
               {config.fields.map(([name, label, fieldType, required, readOnly]) => (
                 <label
                   className={`${fieldType === "textarea" ? "field full" : "field"} ${
@@ -324,60 +415,64 @@ function FormModal({ type, onClose, initialValues = {}, onBack }) {
   );
 }
 
-function SampleSelectionModal({ onClose, onSelect }) {
+function SampleSelectionModal({ onClose, onSelect, allowSampleRequest = true }) {
   return (
     <div className="modal-backdrop" role="presentation" onMouseDown={onClose}>
       <section
         className="modal sample-selection-modal"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="sample-selection-title"
+        aria-label="Sample products"
         onMouseDown={(event) => event.stopPropagation()}
       >
         <button className="modal-close" type="button" onClick={onClose} aria-label="Close product selection">
           <X aria-hidden="true" size={20} />
         </button>
 
-        <p className="eyebrow">Complimentary sample testing</p>
-        <h2 id="sample-selection-title">Choose a product to test</h2>
-        <p className="modal-description sample-selection-description">
-          Select the SteamOne model that best fits your property's garment care needs.
-        </p>
-        <p className="sample-selection-note">
-          I may contact you after your request. This allows me to discuss your interest in SteamOne
-          products and see how our solutions could fit your hotel.
-        </p>
-
         <div className="sample-product-grid">
-          {sampleProducts.map((product) => (
-            <article className="sample-product-card" key={product.name}>
-              <div className="sample-product-image">
-                <img src={product.image} alt={`${product.name} product specification`} />
-              </div>
-              <div className="sample-product-content">
-                <h3>{product.name}</h3>
-                <p>{product.description}</p>
-                <ul>
-                  {product.specs.map((spec) => (
-                    <li key={spec}>
-                      <Check aria-hidden="true" size={15} strokeWidth={2} />
-                      <span>{spec}</span>
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  className="action-button dark sample-product-action"
-                  type="button"
-                  onClick={() => onSelect(product.name)}
-                >
-                  Request this sample
-                </button>
-              </div>
-            </article>
-          ))}
+          {sampleProducts.map((product) => {
+            const ProductElement = allowSampleRequest ? "button" : "article";
+
+            return (
+              <ProductElement
+                className={`sample-product-card ${
+                  allowSampleRequest ? "sample-product-photo-card" : "sample-product-display-card"
+                }`}
+                key={product.name}
+                {...(allowSampleRequest
+                  ? {
+                      type: "button",
+                      onClick: () => onSelect(product.name),
+                      "aria-label": `Request ${product.name} sample`,
+                    }
+                  : {})}
+              >
+                <div className="sample-product-image">
+                  <img src={product.image} alt={allowSampleRequest ? "" : product.name} />
+                </div>
+              </ProductElement>
+            );
+          })}
         </div>
       </section>
     </div>
+  );
+}
+
+function WhySections({ sections }) {
+  if (sections.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="why-grid" aria-label="SteamOne hospitality details">
+      {sections.map(({ title, text }) => (
+        <article className="why-block" key={title}>
+          <p className="eyebrow">{title}</p>
+          <p>{text}</p>
+        </article>
+      ))}
+    </section>
   );
 }
 
@@ -385,6 +480,7 @@ export function App() {
   const [modalType, setModalType] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState("");
   const currentYear = useMemo(() => new Date().getFullYear(), []);
+  const pageConfig = useMemo(() => getPageConfig(), []);
 
   function openMeetingModal() {
     track("cta_click", { type: "meeting" });
@@ -411,13 +507,18 @@ export function App() {
     <main className="page-shell">
       <header className="topbar">
         <SteamOneLogo />
-        <nav className="nav-actions" aria-label="Primary actions">
+        <nav
+          className={`nav-actions ${pageConfig.showHeaderSampleAction ? "" : "nav-actions-single"}`}
+          aria-label="Primary actions"
+        >
           <ActionButton icon={CalendarDays} onClick={openMeetingModal}>
             Book a 10-minute call
           </ActionButton>
-          <ActionButton variant="dark" icon={PackageCheck} onClick={openSampleSelection}>
-            Request a sample
-          </ActionButton>
+          {pageConfig.showHeaderSampleAction ? (
+            <ActionButton variant="dark" icon={PackageCheck} onClick={openSampleSelection}>
+              Request a sample
+            </ActionButton>
+          ) : null}
         </nav>
       </header>
 
@@ -443,35 +544,36 @@ export function App() {
             <ActionButton icon={CalendarDays} onClick={openMeetingModal}>
               Book a 10-minute call
             </ActionButton>
-            <ActionButton variant="dark" icon={PackageCheck} onClick={openSampleSelection}>
-              Request a sample
-            </ActionButton>
+            {pageConfig.showHeroSampleAction ? (
+              <ActionButton variant="dark" icon={PackageCheck} onClick={openSampleSelection}>
+                Request a sample
+              </ActionButton>
+            ) : null}
           </div>
         </div>
       </section>
 
       <section className="intro-grid" aria-labelledby="intro-title">
         <div className="intro-copy">
-          <p className="eyebrow">Good day, my name is Manon.</p>
+          <p className="eyebrow">{pageConfig.intro.eyebrow}</p>
           <div className="short-rule" />
-          <h2 id="intro-title">Just to introduce myself</h2>
+          <h2 id="intro-title">{pageConfig.intro.title}</h2>
           <p>
-            I am a Junior Business Developer at SteamOne, the French creator of garment steamers. As
-            a family-owned company with nearly 15 years of expertise, we design elegant, reliable and
-            easy-to-use solutions guided by excellence, innovation and perseverance.
+            {pageConfig.intro.opening}, {INTRO_COMPANY_DESCRIPTION}
           </p>
-          <p>
-            I felt it was important to add this short introduction so you could get to know, even
-            briefly, the person behind the message.
-          </p>
+          <p>{INTRO_PERSONAL_NOTE}</p>
         </div>
 
-        <div className="video-card">
-          <img src={ASSETS.intro} alt="Portrait of Manon" />
+        <div className={`video-card ${pageConfig.intro.cardClassName || ""}`}>
+          <img
+            className={pageConfig.intro.imageClassName}
+            src={pageConfig.intro.image}
+            alt={pageConfig.intro.imageAlt}
+          />
         </div>
 
         <div className="solution-cards" aria-label="SteamOne hotel solutions">
-          {productCards.map(
+          {pageConfig.solutionCards.map(
             ({ title, text, image, imageAlt, imageClassName, cardClassName, Icon, action }) => {
               const CardElement = action ? "button" : "article";
 
@@ -489,9 +591,11 @@ export function App() {
                       }
                     : {})}
                 >
-                  <img className={imageClassName || ""} src={image} alt={imageAlt} />
+                  {image ? (
+                    <img className={imageClassName || ""} src={image} alt={imageAlt} />
+                  ) : null}
                   <div className="solution-body">
-                    <Icon aria-hidden="true" size={32} strokeWidth={1.55} />
+                    {Icon ? <Icon aria-hidden="true" size={32} strokeWidth={1.55} /> : null}
                     <h3>{title}</h3>
                     <p>{text}</p>
                   </div>
@@ -501,6 +605,8 @@ export function App() {
           )}
         </div>
       </section>
+
+      <WhySections sections={pageConfig.whySections} />
 
       <section className="trust-card" aria-labelledby="trust-title">
         <div className="trust-copy">
@@ -525,9 +631,19 @@ export function App() {
         <small>SteamOne Professional - {currentYear}</small>
       </footer>
 
-      {modalType === "meeting" ? <FormModal type="meeting" onClose={closeModal} /> : null}
+      {modalType === "meeting" ? (
+        <FormModal
+          type="meeting"
+          onClose={closeModal}
+          commercialOwner={pageConfig.commercialOwner}
+        />
+      ) : null}
       {modalType === "sample-selection" ? (
-        <SampleSelectionModal onClose={closeModal} onSelect={selectSampleProduct} />
+        <SampleSelectionModal
+          onClose={closeModal}
+          onSelect={selectSampleProduct}
+          allowSampleRequest={pageConfig.allowSampleRequest}
+        />
       ) : null}
       {modalType === "sample" ? (
         <FormModal
@@ -535,6 +651,7 @@ export function App() {
           onClose={closeModal}
           onBack={() => setModalType("sample-selection")}
           initialValues={{ selectedProduct }}
+          commercialOwner={pageConfig.commercialOwner}
         />
       ) : null}
     </main>

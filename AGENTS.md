@@ -22,3 +22,16 @@ When implementing from a selected generated mock, treat that image as the source
   nearly 15 years of expertise, designing elegant, reliable and easy-to-use solutions.
 - In the sample product-selection modal, show the contact reassurance note directly below the
   product-selection subtitle, using smaller, muted text with a subtle warm accent.
+- Keep Marine's personalized page on a separate `/marine` route without changing the original
+  `/hotels-steamone` page.
+- On Marine's page, remove only the top-right "Request a sample" header action, use
+  `/public/team/marine.jpg` for her portrait, and include `commercialOwner: Marine` in meeting
+  and sample request submissions.
+- Use Marine's supplied close-cropped black-blazer portrait for `/public/team/marine.jpg`, with
+  the portrait shown in a reduced, centered card so Marine feels present but not visually dominant
+  across responsive widths.
+- On Marine's page, show `marine-room-steamers.png` above "Why a steamer in the room?" and
+  `marine-steamone-products.png` above "Why SteamOne?".
+- On Marine's page, justify the body text inside the two "Why" cards, and keep the sample
+  product-selection modal visually limited to large, non-clickable product photos only, without
+  visible text, sample-request actions, or "Request this sample" buttons.
