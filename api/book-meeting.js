@@ -4,10 +4,12 @@ import {
   getEnvironmentStatus,
   getErrorMessage,
   getErrorStatus,
+  getNotificationTarget,
   parseBody,
   serializeResendError,
   validateEmailEnvironment,
   validateLeadRequest,
+  withCommercialOwner,
 } from "./shared.js";
 
 const routeLabel = "[api/book-meeting]";
@@ -27,20 +29,25 @@ export default async function handler(req, res) {
   let resendSendStarted = false;
 
   try {
-    const payload = parseBody(req);
+    const payload = withCommercialOwner(parseBody(req));
 
     validateLeadRequest(req, payload, {
       requiredFields: ["firstName", "lastName", "hotelName", "email", "preferredDateTime"],
     });
     validateEmailEnvironment(environmentStatus);
+    const notificationTarget = getNotificationTarget(payload);
 
     const resend = new Resend(process.env.RESEND_API_KEY);
 
-    console.info(`${routeLabel} Resend send started`);
+    console.info(`${routeLabel} Resend send started`, {
+      commercialOwner: notificationTarget.commercialOwner,
+      notificationEmailVariable: notificationTarget.usedVariable,
+      usedFallback: notificationTarget.usedFallback,
+    });
     resendSendStarted = true;
     const { data, error } = await resend.emails.send({
       from: process.env.FROM_EMAIL,
-      to: process.env.NOTIFICATION_EMAIL,
+      to: notificationTarget.recipient,
       replyTo: payload.email,
       subject: `SteamOne meeting request - ${payload.hotelName}`,
       html: buildEmailHtml({

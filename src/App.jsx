@@ -145,39 +145,53 @@ const INTRO_COMPANY_DESCRIPTION =
 const INTRO_PERSONAL_NOTE =
   "I felt it was important to add this short introduction so you could get to know, even briefly, the person behind the message.";
 
-const defaultPageConfig = {
-  commercialOwner: "",
-  showHeaderSampleAction: true,
-  showHeroSampleAction: true,
-  allowSampleRequest: true,
-  intro: {
-    eyebrow: "Good day, my name is Manon.",
-    title: "Just to introduce myself",
-    opening: "I am a Junior Business Developer at SteamOne",
-    image: ASSETS.intro,
-    imageAlt: "Portrait of Manon",
-    imageClassName: "",
-    cardClassName: "",
+const commercialPageConfigs = {
+  manon: {
+    route: "/hotels-steamone",
+    routeAliases: ["/", "/hotels-steamone"],
+    commercialName: "Manon",
+    commercialOwner: "Manon",
+    roleTitle: "I am a Junior Business Developer at SteamOne",
+    notificationEmailEnv: "NOTIFICATION_EMAIL",
+    showHeaderSampleAction: true,
+    showHeroSampleAction: true,
+    allowSampleRequest: true,
+    intro: {
+      eyebrow: "Good day, my name is Manon.",
+      title: "Just to introduce myself",
+      personalNote: INTRO_PERSONAL_NOTE,
+      image: ASSETS.intro,
+      imageAlt: "Portrait of Manon",
+      imageClassName: "",
+      cardClassName: "",
+    },
+    whySteamOneText: "",
+    whySteamerRoomText: "",
+    solutionCards: productCards,
+    whySections: [],
   },
-  solutionCards: productCards,
-  whySections: [],
-};
 
-const pageConfigs = {
-  "/marine": {
+  marine: {
+    route: "/marine",
+    routeAliases: ["/marine"],
+    commercialName: "Marine",
     commercialOwner: "Marine",
+    roleTitle: "I’m responsible for the Hospitality Business Unit in Europe at SteamOne",
+    notificationEmailEnv: "MARINE_NOTIFICATION_EMAIL",
     showHeaderSampleAction: false,
     showHeroSampleAction: false,
     allowSampleRequest: false,
     intro: {
       eyebrow: "Good day, my name is Marine.",
       title: "Just to introduce myself",
-      opening: "I’m responsible for the Hospitality Business Unit in Europe at SteamOne",
+      personalNote: INTRO_PERSONAL_NOTE,
       image: ASSETS.marineIntro,
       imageAlt: "Portrait of Marine",
       imageClassName: "marine-portrait-image",
       cardClassName: "marine-portrait-card",
     },
+    whySteamOneText: marineWhySections[1].text,
+    whySteamerRoomText: marineWhySections[0].text,
     solutionCards: [
       {
         ...marineWhySections[0],
@@ -193,14 +207,22 @@ const pageConfigs = {
   },
 };
 
+const pageConfigsByRoute = Object.values(commercialPageConfigs).reduce((routes, config) => {
+  config.routeAliases.forEach((route) => {
+    routes[route] = config;
+  });
+
+  return routes;
+}, {});
+
 function getPageConfig() {
   if (typeof window === "undefined") {
-    return defaultPageConfig;
+    return commercialPageConfigs.manon;
   }
 
   const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
 
-  return pageConfigs[pathname] || defaultPageConfig;
+  return pageConfigsByRoute[pathname] || commercialPageConfigs.manon;
 }
 
 const formConfigs = {
@@ -559,9 +581,9 @@ export function App() {
           <div className="short-rule" />
           <h2 id="intro-title">{pageConfig.intro.title}</h2>
           <p>
-            {pageConfig.intro.opening}, {INTRO_COMPANY_DESCRIPTION}
+            {pageConfig.roleTitle}, {INTRO_COMPANY_DESCRIPTION}
           </p>
-          <p>{INTRO_PERSONAL_NOTE}</p>
+          <p>{pageConfig.intro.personalNote}</p>
         </div>
 
         <div className={`video-card ${pageConfig.intro.cardClassName || ""}`}>

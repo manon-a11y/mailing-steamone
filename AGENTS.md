@@ -35,3 +35,7 @@ When implementing from a selected generated mock, treat that image as the source
 - On Marine's page, justify the body text inside the two "Why" cards, and keep the sample
   product-selection modal visually limited to large, non-clickable product photos only, without
   visible text, sample-request actions, or "Request this sample" buttons.
+- Keep commercial landing pages in a single deployment with separate page configs. Manon uses
+  `commercialOwner: Manon` and `NOTIFICATION_EMAIL`; Marine uses `commercialOwner: Marine` and
+  `MARINE_NOTIFICATION_EMAIL`, falling back to `NOTIFICATION_EMAIL` when the Marine-specific
+  variable is absent.

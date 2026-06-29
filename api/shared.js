@@ -1,7 +1,14 @@
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const DEFAULT_COMMERCIAL_OWNER = "Manon";
+const REQUIRED_EMAIL_ENVIRONMENT_FIELDS = ["NOTIFICATION_EMAIL", "FROM_EMAIL", "RESEND_API_KEY"];
+
+export const COMMERCIAL_NOTIFICATION_EMAILS = {
+  Manon: "NOTIFICATION_EMAIL",
+  Marine: "MARINE_NOTIFICATION_EMAIL",
+};
 
 export const EMAIL_FIELDS = [
-  ["commercialOwner", "commercialOwner", { optional: true }],
+  ["commercialOwner", "commercialOwner"],
   ["selectedProduct", "Selected product"],
   ["firstName", "First name"],
   ["lastName", "Last name"],
@@ -59,6 +66,42 @@ function fieldRows(fields, payload) {
     .join("");
 }
 
+export function normalizeCommercialOwner(value) {
+  const owner = String(value || "").trim();
+
+  if (!owner) {
+    return DEFAULT_COMMERCIAL_OWNER;
+  }
+
+  const knownOwner = Object.keys(COMMERCIAL_NOTIFICATION_EMAILS).find(
+    (commercialOwner) => commercialOwner.toLowerCase() === owner.toLowerCase(),
+  );
+
+  return knownOwner || owner;
+}
+
+export function withCommercialOwner(payload) {
+  return {
+    ...payload,
+    commercialOwner: normalizeCommercialOwner(payload.commercialOwner),
+  };
+}
+
+export function getNotificationTarget(payload) {
+  const commercialOwner = normalizeCommercialOwner(payload.commercialOwner);
+  const preferredVariable = COMMERCIAL_NOTIFICATION_EMAILS[commercialOwner] || "NOTIFICATION_EMAIL";
+  const fallbackVariable = "NOTIFICATION_EMAIL";
+  const recipient = process.env[preferredVariable] || process.env[fallbackVariable];
+
+  return {
+    commercialOwner,
+    preferredVariable,
+    usedVariable: process.env[preferredVariable] ? preferredVariable : fallbackVariable,
+    usedFallback: preferredVariable !== fallbackVariable && !process.env[preferredVariable],
+    recipient,
+  };
+}
+
 export function buildEmailHtml({ title, payload }) {
   return `
     <div style="font-family:Inter,Arial,sans-serif;max-width:680px;margin:0 auto;padding:28px;background:#f8f5f0;color:#1f1b18;">
@@ -102,15 +145,16 @@ export function validateLeadRequest(req, payload, config) {
 export function getEnvironmentStatus() {
   return {
     NOTIFICATION_EMAIL: Boolean(process.env.NOTIFICATION_EMAIL),
+    MARINE_NOTIFICATION_EMAIL: Boolean(process.env.MARINE_NOTIFICATION_EMAIL),
     FROM_EMAIL: Boolean(process.env.FROM_EMAIL),
     RESEND_API_KEY: Boolean(process.env.RESEND_API_KEY),
   };
 }
 
 export function validateEmailEnvironment(environmentStatus) {
-  const missingVariables = Object.entries(environmentStatus)
-    .filter(([, exists]) => !exists)
-    .map(([name]) => name);
+  const missingVariables = REQUIRED_EMAIL_ENVIRONMENT_FIELDS.filter(
+    (name) => !environmentStatus[name],
+  );
 
   if (missingVariables.length > 0) {
     throw new LeadRequestError(
